@@ -53,6 +53,15 @@ public class MovieData implements Serializable{
 			listOfUserRatings = new HashMap<Integer,Double>();
 			sumByCust.put(uid, new Long(rating));
 		}
+		if(rating>3){
+			rating = 1;
+		}
+		else if(rating<3){
+			rating = -1;
+		}
+		else{
+			rating = 0;
+		}
 		listOfUserRatings.put(mid, (double)rating);
 		userToMoviesRelation.put(uid, listOfUserRatings);
 		//System.out.println("added uid: "+uid+" mid: "+ mid +" rating: "+rating);
@@ -67,6 +76,15 @@ public class MovieData implements Serializable{
 		else{
 			listOfMovieRatings = new HashMap<Integer,Double>();
 			sumByMovie.put(mid, new Long(rating));
+		}
+		if(rating>3){
+			rating = 1;
+		}
+		else if(rating<3){
+			rating = -1;
+		}
+		else{
+			rating = 0;
 		}
 		listOfMovieRatings.put(uid, (double)rating);
 		moviesToUserRelation.put(mid, listOfMovieRatings);
