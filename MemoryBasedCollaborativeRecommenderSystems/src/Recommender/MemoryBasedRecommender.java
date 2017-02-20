@@ -11,7 +11,7 @@ import DS.UserRatings;
 import DS.UserRelations;
 
 public class MemoryBasedRecommender {
-	public static HashMap<Integer, HashMap<Integer,Double>> predictMissingEntries(HashMap<Integer, HashMap<Integer,Double>> userRatings,HashMap<Integer, List<UserRelations>> nClosestRelations,Set<Integer> listOfMovies){
+	public static HashMap<Integer, HashMap<Integer,Double>> predictMissingEntries(HashMap<Integer, HashMap<Integer,Double>> userRatings,HashMap<Integer, List<UserRelations>> nClosestRelations,Set<Integer> listOfMovies, HashMap<Integer, Double> meansOfMovieRatings){
 		HashMap<Integer, HashMap<Integer,Double>> allRatingsForAllUsers = new HashMap<>();
 		for(int uid : userRatings.keySet()){
 			HashMap<Integer, Double> allRatingsForThisUser = new HashMap<>();
@@ -28,7 +28,7 @@ public class MemoryBasedRecommender {
 				if(count!=0)
 					allRatingsForThisUser.put(mid, averageratingThisUserThisMovie/count);
 				else{
-					allRatingsForThisUser.put(mid, 0.0);
+					allRatingsForThisUser.put(mid, meansOfMovieRatings.get(mid));
 				}
 			}
 			allRatingsForAllUsers.put(uid, allRatingsForThisUser);
@@ -45,6 +45,7 @@ public class MemoryBasedRecommender {
 		HashMap<Integer, HashMap<Integer,Double>> ratingsOfAllUsers = movieDataBase.getUserToMoviesRelation();
 		HashMap<Integer, HashMap<Integer,Double>> ratingsForAllMovies = movieDataBase.getMoviesToUserRelation();
 		HashMap<Integer, HashMap<Integer,Double>> NormalizedRatingForUser;
+		HashMap<Integer, Double> meansOfMovieRatings = movieDataBase.getMeans(ratingsForAllMovies);
 		UserNormalizer userNormalizer = new UserNormalizer(movieDataBase.createClone(ratingsOfAllUsers));
 		HashMap<Integer, Double> means = userNormalizer.getMeans();
 		NormalizedRatingForUser = userNormalizer.normalizeByMean();
@@ -56,7 +57,7 @@ public class MemoryBasedRecommender {
 			List<UserRelations> relations =  correlations.nNearestNeighbor(942,sortedCorrelation,uid);
 			nClosestRelations.put(uid, relations);
 		}
-		HashMap<Integer, HashMap<Integer,Double>> allRatingsForAllUsers = predictMissingEntries(ratingsOfAllUsers,nClosestRelations,ratingsForAllMovies.keySet());
+		HashMap<Integer, HashMap<Integer,Double>> allRatingsForAllUsers = predictMissingEntries(ratingsOfAllUsers,nClosestRelations,ratingsForAllMovies.keySet(),meansOfMovieRatings);
 		HashMap<Integer, HashMap<Integer,Double>> testRatingsOfAllUsers = movieDataTest.getUserToMoviesRelation();
 		HashMap<Integer, HashMap<Integer,Double>> testRatingsForAllMovies = movieDataTest.getMoviesToUserRelation();
 		int count1 = 0;
@@ -85,9 +86,9 @@ public class MemoryBasedRecommender {
 				if(predictedrating == null){
 					predictedrating = 0.0;
 				}
-				if (predictedrating > 0.20) {
+				if (predictedrating > 0.33) {
 					predictedrating = 1.0;
-				} else if (predictedrating < -0.20) {
+				} else if (predictedrating < -0.33) {
 					predictedrating = -1.0;
 				} else {
 					predictedrating = 0.0;

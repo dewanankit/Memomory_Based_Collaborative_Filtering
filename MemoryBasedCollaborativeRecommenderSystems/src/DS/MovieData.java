@@ -166,18 +166,18 @@ public class MovieData implements Serializable{
 		return this.moviesToUserRelation.keySet();
 	}
 	
-	public HashMap<Integer, Double> getMeans(HashMap<Integer, HashMap<Integer,Double>> userRatings){
+	public HashMap<Integer, Double> getMeans(HashMap<Integer, HashMap<Integer,Double>> ratings){
 		HashMap<Integer, Double> means = new HashMap<>();
-		for(int userID : userRatings.keySet()){
-			HashMap<Integer,Double> listOfUserRatings = userRatings.get(userID);
+		for(int id : ratings.keySet()){
+			HashMap<Integer,Double> listOfRatings = ratings.get(id);
 			int count = 0;
 			double sum = 0;
-			for(Integer movieId : listOfUserRatings.keySet()){
-				sum = sum + listOfUserRatings.get(movieId);
+			for(Integer movieId : listOfRatings.keySet()){
+				sum = sum + listOfRatings.get(movieId);
 				count++;
 			}
 			if(count>0){
-				means.put(userID, ((sum*1.0)/count));
+				means.put(id, ((sum*1.0)/count));
 			}
 		}
 		return means;
