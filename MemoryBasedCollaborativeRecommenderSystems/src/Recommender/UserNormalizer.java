@@ -29,6 +29,23 @@ public class UserNormalizer {
 		}
 		return means;
 	}
+	public HashMap<Integer, Double> getMeans(HashMap<Integer, HashMap<Integer,Double>> userRatings){
+		HashMap<Integer, Double> means = new HashMap<>();
+//		HashMap<Integer, HashMap<Integer,Double>> userRatings = userRatings;
+		for(int userID : userRatings.keySet()){
+			HashMap<Integer,Double> listOfUserRatings = userRatings.get(userID);
+			int count = 0;
+			double sum = 0;
+			for(Integer movieId : listOfUserRatings.keySet()){
+				sum = sum + listOfUserRatings.get(movieId);
+				count++;
+			}
+			if(count>0){
+				means.put(userID, ((sum*1.0)/count));
+			}
+		}
+		return means;
+	}
 	public HashMap<Integer,HashMap<Integer,Double>> normalizeByMean() {
 		HashMap<Integer,Double> means= null;
 		HashMap<Integer, HashMap<Integer,Double>> userRatings = this.userRatings;

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,36 +41,42 @@ public class CorrelationMetrics {
 	public HashMap<Integer, HashMap<Integer,Double>> pearsonCorrelation(HashMap<Integer, HashMap<Integer,Double>> userRatings){
 		Set<Integer> listOfUsers = userRatings.keySet();
 		ArrayList<Integer> arrayOfUser = new ArrayList<>(listOfUsers);
+		Set<Integer> checked = new HashSet<>();
 		HashMap<Integer, HashMap<Integer,Double>> correlationMatrix = new HashMap<>();
 		MovieData movieData = new MovieData();
 		HashMap<Integer, Double> means = movieData.getMeans(userRatings);
 		for(int userID : arrayOfUser){
-			//arrayOfUser.remove(arrayOfUser.indexOf(userID));
+			checked.add(userID);
 			double mean1 = means.get(userID);
 			HashMap<Integer,Double> ListOfThisUserRatings = userRatings.get(userID);
+			System.out.println(userID);
 			for(int otherUsersID : arrayOfUser){
-				double mean2 = means.get(otherUsersID);
-				HashMap<Integer,Double> listOfOtherUserRatings = userRatings.get(otherUsersID);
-				double correlation = calculatePearsonCorrelation(ListOfThisUserRatings,listOfOtherUserRatings,mean1,mean2);
-				//System.out.println(userID+" "+otherUsersID+" "+correlation);
-				HashMap<Integer, Double> correlationForUser;
-				HashMap<Integer, Double> correlationForOtherUser;
-				if(correlationMatrix.get(userID)!=null){
-					correlationForUser = correlationMatrix.get(userID);
+				if (!checked.contains(otherUsersID)) {
+//					System.out.println(otherUsersID);
+					double mean2 = means.get(otherUsersID);
+					HashMap<Integer, Double> listOfOtherUserRatings = userRatings.get(otherUsersID);
+					double correlation = calculatePearsonCorrelation(ListOfThisUserRatings, listOfOtherUserRatings,
+							mean1, mean2);
+					System.out.println(userID+" "+otherUsersID+" "+correlation);
+					HashMap<Integer, Double> correlationForUser;
+					HashMap<Integer, Double> correlationForOtherUser;
+					if (correlationMatrix.get(userID) != null) {
+						correlationForUser = correlationMatrix.get(userID);
+					} else {
+						correlationForUser = new HashMap<>();
+					}
+					if (correlationMatrix.get(otherUsersID) != null) {
+						correlationForOtherUser = correlationMatrix.get(otherUsersID);
+					} else {
+						correlationForOtherUser = new HashMap<>();
+					}
+					if (userID != otherUsersID) {
+						correlationForUser.put(otherUsersID, correlation);
+						correlationMatrix.put(userID, correlationForUser);
+						correlationForOtherUser.put(userID, correlation);
+						correlationMatrix.put(otherUsersID, correlationForUser);
+					} 
 				}
-				else{
-					correlationForUser = new HashMap<>();
-				}
-				if(correlationMatrix.get(otherUsersID)!=null){
-					correlationForOtherUser = correlationMatrix.get(otherUsersID);
-				}
-				else{
-					correlationForOtherUser = new HashMap<>();
-				}
-				correlationForUser.put(otherUsersID, correlation);
-				correlationMatrix.put(userID, correlationForUser);
-				correlationForOtherUser.put(userID, correlation);
-				correlationMatrix.put(otherUsersID, correlationForUser);
 			}
 		}
 		return correlationMatrix;
